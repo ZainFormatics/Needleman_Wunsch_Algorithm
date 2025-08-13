@@ -5,19 +5,20 @@ function runNeedlemanWunsch() {
   const mismatch = parseInt(document.getElementById("mismatch").value, 10);
   const gap = parseInt(document.getElementById("gap").value, 10);
 
-  // Validate scoring inputs
+  
   if (isNaN(match) || isNaN(mismatch) || isNaN(gap)) {
     document.getElementById("result").innerHTML = "Please enter valid scoring values.";
     return;
   }
 
-  // Clean and validate sequences
-  const allowedChars = "ACDEFGHIKLMNPQRSTVWY"; // Protein alphabet, change if DNA/RNA
+  
+  const allowedChars = "ACGTN";
+
   function cleanSequence(seq) {
-    // Remove FASTA headers and whitespace
+    
     seq = seq.replace(/^>.*\n?/gm, "").replace(/\s+/g, "").toUpperCase();
 
-    // Check for invalid characters
+    
     const invalid = seq.replace(new RegExp(`[${allowedChars}]`, "g"), "");
     if (invalid.length > 0) {
       document.getElementById("result").innerHTML =
@@ -32,7 +33,7 @@ function runNeedlemanWunsch() {
     sequence1 = cleanSequence(sequence1Raw);
     sequence2 = cleanSequence(sequence2Raw);
   } catch {
-    return; // Stop execution if invalid input
+    return; 
   }
 
   // Run alignment
@@ -42,6 +43,8 @@ function runNeedlemanWunsch() {
 
 function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
   const matrix = [];
+
+  
   for (let i = 0; i <= seq1.length; i++) {
     matrix[i] = [];
     for (let j = 0; j <= seq2.length; j++) {
@@ -62,7 +65,7 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     }
   }
 
-  // Traceback
+  
   let alignment1 = "";
   let alignment2 = "";
   let i = seq1.length;
