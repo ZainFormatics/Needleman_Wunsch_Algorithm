@@ -1,26 +1,46 @@
 function runNeedlemanWunsch() {
-  const sequence1 = document.getElementById("sequence1").value.toUpperCase();
-  const sequence2 = document.getElementById("sequence2").value.toUpperCase();
+  const sequence1Raw = document.getElementById("sequence1").value.toUpperCase();
+  const sequence2Raw = document.getElementById("sequence2").value.toUpperCase();
   const match = parseInt(document.getElementById("match").value, 10);
   const mismatch = parseInt(document.getElementById("mismatch").value, 10);
   const gap = parseInt(document.getElementById("gap").value, 10);
 
-  // Validate inputs
-  if (!sequence1 || !sequence2) {
-    document.getElementById("result").innerHTML = "Please enter both sequences.";
-    return;
-  }
+  // Validate scoring inputs
   if (isNaN(match) || isNaN(mismatch) || isNaN(gap)) {
     document.getElementById("result").innerHTML = "Please enter valid scoring values.";
     return;
   }
 
+  // Clean and validate sequences
+  const allowedChars = "ACDEFGHIKLMNPQRSTVWY"; // Protein alphabet, change if DNA/RNA
+  function cleanSequence(seq) {
+    // Remove FASTA headers and whitespace
+    seq = seq.replace(/^>.*\n?/gm, "").replace(/\s+/g, "").toUpperCase();
+
+    // Check for invalid characters
+    const invalid = seq.replace(new RegExp(`[${allowedChars}]`, "g"), "");
+    if (invalid.length > 0) {
+      document.getElementById("result").innerHTML =
+        `Invalid characters found: ${[...new Set(invalid)].join(", ")}`;
+      throw new Error("Invalid sequence input.");
+    }
+    return seq;
+  }
+
+  let sequence1, sequence2;
+  try {
+    sequence1 = cleanSequence(sequence1Raw);
+    sequence2 = cleanSequence(sequence2Raw);
+  } catch {
+    return; // Stop execution if invalid input
+  }
+
+  // Run alignment
   const result = needlemanWunsch(sequence1, sequence2, match, mismatch, gap);
   document.getElementById("result").innerHTML = result;
 }
 
 function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
-  // Initialize the DP matrix
   const matrix = [];
   for (let i = 0; i <= seq1.length; i++) {
     matrix[i] = [];
@@ -42,7 +62,7 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     }
   }
 
-  // Traceback to construct alignment
+  // Traceback
   let alignment1 = "";
   let alignment2 = "";
   let i = seq1.length;
